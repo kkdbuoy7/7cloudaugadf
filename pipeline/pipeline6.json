@@ -1,0 +1,39 @@
+{
+	"name": "pipeline6",
+	"properties": {
+		"activities": [
+			{
+				"name": "Filter1",
+				"type": "Filter",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.param1",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(item(),3)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"param1": {
+				"type": "array",
+				"defaultValue": [
+					0,
+					1,
+					2,
+					3,
+					4,
+					5
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-11T02:55:19Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

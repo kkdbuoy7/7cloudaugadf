@@ -1,0 +1,46 @@
+{
+	"name": "pipeline20",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow9",
+						"type": "DataFlowReference",
+						"parameters": {
+							"param1": {
+								"value": "'@{pipeline().parameters.pipeparam1}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"pipeparam1": {
+				"type": "string",
+				"defaultValue": "'San Antonio'"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-29T03:05:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

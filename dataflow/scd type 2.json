@@ -1,0 +1,180 @@
+{
+	"name": "scd type 2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText35",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable6",
+						"type": "DatasetReference"
+					},
+					"name": "EMPtable"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable7",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable8",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "sourcehash"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "targethash"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "exists1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "exists2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "alterRow2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ID as integer,",
+				"          Firstname as string,",
+				"          LastName as string,",
+				"          City as string,",
+				"          StartDate as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source",
+				"source(output(",
+				"          ID as integer,",
+				"          Firstname as string,",
+				"          LastName as string,",
+				"          City as string,",
+				"          StartDate as date,",
+				"          EndDate as date,",
+				"          IsActive as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> EMPtable",
+				"select1 derive(sourcehash = md5(ID,Firstname,City)) ~> sourcehash",
+				"EMPtable filter(IsActive == true()) ~> filter1",
+				"filter1 derive(targethash = md5(ID,Firstname,City)) ~> targethash",
+				"source select(mapColumn(",
+				"          ID,",
+				"          Firstname,",
+				"          LastName,",
+				"          City,",
+				"          StartDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"sourcehash, targethash exists(sourcehash == targethash,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exists1",
+				"exists1 derive(EndDate = toDate('2099-01-01','yyyy-MM-dd'),",
+				"          isActive = true()) ~> derivedColumn1",
+				"derivedColumn1 alterRow(insertIf(true())) ~> alterRow1",
+				"targethash, sourcehash exists(select1@ID == EMPtable@ID && select1@Firstname == EMPtable@Firstname && select1@City !=EMPtable@City,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> exists2",
+				"exists2 derive(EndDate = currentDate(),",
+				"          IsActive = false()) ~> derivedColumn2",
+				"derivedColumn2 alterRow(upsertIf(true())) ~> alterRow2",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          Firstname as string,",
+				"          LastName as string,",
+				"          City as string,",
+				"          StartDate as date,",
+				"          EndDate as date,",
+				"          IsActive as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ID,",
+				"          Firstname,",
+				"          LastName,",
+				"          City,",
+				"          StartDate,",
+				"          EndDate,",
+				"          IsActive = isActive",
+				"     )) ~> sink1",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          Firstname as string,",
+				"          LastName as string,",
+				"          City as string,",
+				"          StartDate as date,",
+				"          EndDate as date,",
+				"          IsActive as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ID,",
+				"          Firstname,",
+				"          LastName,",
+				"          City,",
+				"          StartDate,",
+				"          EndDate,",
+				"          IsActive",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}

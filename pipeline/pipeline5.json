@@ -1,0 +1,83 @@
+{
+	"name": "pipeline5",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DelimitedText6",
+						"type": "DatasetReference",
+						"parameters": {
+							"filename": {
+								"value": "@pipeline().parameters.filename1",
+								"type": "Expression"
+							},
+							"foldername": {
+								"value": "@pipeline().parameters.foldername1",
+								"type": "Expression"
+							},
+							"subfoldername": {
+								"value": "@pipeline().parameters.subfoldername1",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Json4",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"filename1": {
+				"type": "string"
+			},
+			"foldername1": {
+				"type": "string"
+			},
+			"subfoldername1": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-08T02:51:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
